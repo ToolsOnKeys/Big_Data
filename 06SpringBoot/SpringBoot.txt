@@ -1,0 +1,124 @@
+#SpringBoot
+	
+1、创建一个Maven的java工程
+	
+2、配置pom.xml文件
+	<build>
+		<plugins>
+			<!-- 修改maven默认的JRE编译版本，1.8代表JRE编译的版本，根据自己的安装版本选择1.7或1.8 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.8.RELEASE</version>
+	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+	</dependencies>
+	
+3、创建环境启动的主程序类即main函数，注意此类需要添加注释@SpringBootApplication
+@SpringBootApplication
+public class AtCrowdfundingApplication { //有网的时候可以自动创建,没有网的时候,我们可以手动创建.
+        public static void main(String[] args) {
+                SpringApplication.run(AtCrowdfundingApplication.class, args);
+        }
+}
+
+	
+4、继承TomCat服务器，调整tomcat服务器的相关参数，可以添加维护application.properties文件。
+server.context-path=/
+server.port=8080
+server.session.timeout=60
+server.tomcat.max-threads=800
+server.tomcat.uri-encoding=UTF-8
+	--------------------------------------------以上是基本的SpringBoot结构，以下继承Spring和Spring Web MVC----------------------------------------------
+	
+5、在环境启动类上添加注释@ComponentScan(basePackages="com.atguigu") 
+此注释可以指定扫描的文件范围
+	
+6、添加控制器的类即相关代码（此类要在程序启动器的注释基本包内）
+其中有几个注释需要注意：
+①、Controller：这个是SpringmVC指定控制组件
+②、ResponseBody：指定方法返回的都会自动转化成Json传给前端。
+③、RequesMapping：可以指定响应类和方法的url路径
+
+@Controller
+@RequestMapping("/member")
+public class MemberController {
+        @ResponseBody
+        @RequestMapping("/index")
+        public Object index() {
+                Map map = new HashMap();
+                map.put("username", "张三");
+                return map;
+        }
+}
+	
+7、如果涉及到转发和重定向到jsp和html文件时：
+①、在pom.xml中添加依赖：
+<dependency>
+		  <groupId>org.apache.tomcat.embed</groupId>
+		  <artifactId>tomcat-embed-jasper</artifactId>
+</dependency>
+	<dependency>
+		  <groupId>javax.servlet</groupId>
+		  <artifactId>jstl</artifactId>
+	</dependency>
+②、在application.properties文件中添加配置
+spring.mvc.view.prefix=/   
+spring.mvc.view.suffix=.jsp
+	--------------------------------------------以下集成MyBaties----------------------------------------------
+	
+8、增加Mybaties的相关依赖
+<dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!-- 数据库连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+	
+9、创建application.yml配置文件，配置链接池和Mybaties的相关配置
+---  
+spring: 
+  datasource:
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://127.0.0.1:3306/atcrowdfunding?serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis:   
+  mapper-locations: classpath*:/mybatis/mapper-*.xml
+  type-aliases-package: com.atguigu.**.bean
+
+注：3)	Properties 和  yml 区别
+在 Spring Boot 中，有两种配置文件， 一种是application.properties, 另一种是application.yml, 
+两种都可以配置Spring Boot 项目中的一些变量的定义，参数的设置等。 
+application.properties 配置文件在写的时候要写完整，yml文件在写的时候层次感强，而且少写了代码。但是从严格意义上来讲，区别不大
+
+	
+10、事务的添加：
+首先事务类前需要添加：注解@Transactional(readOnly=true)
+同时事务方法前需要添加：注解@Transactional

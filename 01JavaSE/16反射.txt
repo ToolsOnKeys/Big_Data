@@ -1,0 +1,70 @@
+#反射：
+1、反射的根源：Class对象，以及它里面存储的Field、Constructor、Method等对象来实现的。
+2、Class对象实在类型被加载到内存时，在方法去创建的，不是由程序员创建的，而是由JVM帮我们创建的。
+3、Class没有公共构造方法。Class对象实在加载类时由Java虚拟机以及通过调用类加载器中defineClass方法自动构造的。
+#类加载
+1、类在内存中的生命周期：加载-》使用-》卸载
+2、类的加载又分为三个阶段：
+①、加载：load，就是指将类型的class字节码数据读入内存
+②、链接：link，
+|-验证：校验合法性
+|-准备：准备对应的内存（方法区），创建Class对象，为类变量（静态变量）赋默认值。
+|-解析：把字节码中的符号应用替换为对应的直接地址引用
+③、哪些会导致类的初始化
+|-主方法（main方法）所在的类，要先初始化
+|-第一次使用某个类型就是在new他的对象，此时这个没有初始化的化，先完成类初始化再做实例化
+|-调用某个类的静态成员（类变量和类方法），此时这个类没有初始化的化，先完成类初始化
+|-子类初始化时，发现他的父类没有初始化的化，那么要想初始化父类
+|-通过反射操作某个类时，如果这个类没有初始化，也会导致该类先初始化。
+④、哪些使用类，但是不会导致类的初始化？
+|-使用某个类的静态的常量（static final）
+|-通过子类调用父类的静态变量，静态方法，只会导致父类初始化，不会导致子类初始化，即只有声明静态成员的类才会初始化。
+|-用某个类型声明数组并创建数组对象时，不会导致这个类初始化。
+⑤、类加载需要类加载器
+|-引导类加载器
+|-扩展类加载器
+|-引用程序类加载器
+|-自定义类加载器
+⑥、java系统类加载器的双亲委托模式
+#java.lang.Class类
+1、Class对象是反射的根源
+2、哪些类型可以获取Class对象
+|-基本数据类型和void
+|-类和接口
+|-枚举
+|-注解
+|-数组
+3、获取Class对象的四种方式
+|-类型名.class：要求编译期间已知类型
+|-对象.getClass()：只能获取已经给存在的对象的运行时类型
+|-Class.forName（类型全名称）：可以获取编译期间未知的类型
+|-ClassLoader的类加载对象.loadClass（类型全名称）：可以用自定义加载器对象加载指定路径下的类型。
+#反射的应用
+1、获取类型的详细信息
+|-获取某个对象的Class对象：Class clazz = *.class
+|-获取包对象：calzz.getPackage()
+|-获取修饰符对象：clazz.getModifiers()
+|-类型名：clazz.getName()
+|-父类的Class对象：clazz.getSuperclass()
+|-父接口们Class[]：clazz.getInterfaces()
+|-类的属性：Field[] field =clazz.getField(name);getFields();getDeclaredField(name);getDeclaredFields()
+     属性的修饰符：field.getModifiers()
+     属性名：field.getName()
+     属性的数据类型：field.getType()
+|-构造器：Constructor[] constructors = clazz.getDeclaredConstructors();
+     形参列表：constructors.getParameterTypes()
+|-方法：Method[] declaredMethods = clazz.getDeclaredMethods()
+
+Class class1 = Class.forName("com.atguigu.home.Student");
+Constructor constructor = class1.getDeclaredConstructor(int.class,String.class,int.class);
+Object object = constructor.newInstance(1,"dinghao",24);
+System.out.println(object);
+Field field = class1.getDeclaredField("id");
+field.setAccessible(true);
+System.out.println(field.get(object));
+field.set(object, 2);
+System.out.println(object);
+Method method = class1.getDeclaredMethod("setId", int.class);
+method.setAccessible(true);
+method.invoke(object, 10);
+System.out.println(object);

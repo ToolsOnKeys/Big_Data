@@ -1,0 +1,88 @@
+#MyBaties
+	
+1、创建一个Maven的java工程
+
+2、在pom.xml中加入对MyBatis的依赖+数据库链接+日志的依赖
+<dependency>
+  	  	<groupId>org.mybatis</groupId>
+  	  	<artifactId>mybatis</artifactId>
+ 		<version>3.4.1</version>
+  	</dependency>
+  	<dependency>
+  	    <groupId>mysql</groupId>
+	    <artifactId>mysql-connector-java</artifactId>
+	    <version>5.1.37</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>1.2.14</version>
+  	</dependency>
+
+	
+3、导入log4j的配置文件（此文件无需调整）
+	
+4、创建同数据库表结构同属性的javabean
+	
+5、配置Mybaties的配置文件mybatis-config.xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 数据库连接环境的配置 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url" value="jdbc:mysql://localhost:3306/mybatis_1129" />
+				<property name="username" value="root" />
+				<property name="password" value="1234" />
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- 引入SQL映射文件,Mapper映射文件 	-->
+	<mappers>
+		<package resource="Mapper文件名 " />
+	</mappers>
+</configuration>
+
+	
+6、创建Mapper接口（主要定义同数据库交互的接口文件）
+	
+7、创建Mapper映射文件（此文件名需要加入到Mybaties配置文件中）；当前的Mapping文件中，主要添加sql的处理逻辑
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	Mapper映射文件: 定义CRUD的SQL语句
+ -->
+<mapper namespace="com.atguigu.mybatis.mapper.EmployeeMapper">
+
+	<!-- public Employee getEmployeeById(Integer id ); -->
+	<select id="getEmployeeById" resultType="com.atguigu.mybatis.beans.Employee" parameterType="java.lang.Integer">
+		select id,last_name, email,gender from tbl_employee where id = #{id }
+	</select>
+</mapper>
+
+	
+8、测试方法
+@Test
+	public void test()  throws Exception{
+		String resource = "mybatis-config.xml";
+		InputStream inputStream =Resources.getResourceAsStream(resource);
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
+.build(inputStream);		
+		SqlSession session =    sqlSessionFactory.openSession();
+		try {
+			//Mapper接口:获取Mapper接口的 代理实现类对象
+			EmployeeMapper mapper =session.getMapper(EmployeeMapper.class);		
+			Employee employee = mapper.getEmployeeById(1006);
+			System.out.println(employee);
+		} finally {
+			session.close();
+		}
+	}

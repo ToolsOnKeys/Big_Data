@@ -1,0 +1,39 @@
+Git
+	
+#Git是目前世界上最先进的分布式版本控制系统
+	
+#Git的优缺点：
+1、容灾能力强，本地版本管理，异地写作，灵活分支
+2、国外的网站，访问效率低
+	
+#Git实战操作
+1、创建版本库：git init
+2、提交文件：
+|-git status：查看当前文件状态
+|-git add 文件名：将文件添加到暂存区
+|-git commit -m “注释名称”【文件名】：提交文件到本地库
+3、查看文件提交记录
+|-git log 文件名：查看文件历史提交记录
+|-git log --pretty=oneline 文件名：简易信息查看
+4、回退历史
+|-git reset --hard HEAD^ ：回退到上一次提交，^表示回退一步
+|-git reset --hard HEAD~n：回退n次操作
+5、版本穿越
+|-git reflog：进行查看历史记录的版本号
+|-git reset --hard 版本号：穿越到某一版本
+6、还原文件：
+|-git checkout -- 文件命 ：如果文件修改未进行add的情况下才可以使用该方法。
+7、删除文件
+|-如果进行了一些文件的误操作，先将本地文件删除，再执行git add提交
+|-实际上，只要提交后的文件，再git中都有记录，每个用户可以通过git reflog查看到对应的版本号，还可以再回退对应的版本。
+8、分支
+|-git branch <分支名>：创建分支
+|-git branch -v ：查看分支
+|-git checkout <分支名>：切换分支
+|-git checkout -b <分支名>：创建分支并切换到该分支
+|-git merge <分支名>：要在合并到的目录执行，即合并当前分支和指定分支
+|-git branch -D <分支名>：删除分支
+|-git diff：定位分支
+|-git remote add origin “url”：
+|-git push origin master：推送到远程库
+|-git clone “url” 新项目的目录名：克隆项目

@@ -1,0 +1,98 @@
+#java.io.File类
+1、文件和目录路径名的抽象描述。即File类的对象是表示一个文件或一个目录，创建File类对象时需要指定这个文件或目录的路径名。
+2、API
+|-new File（路径名）
+|-String getName（）：获取文件名称
+|-long length（）：获取文件大小，只能获取文件的大小，不能直接获取目录的大小
+|-long lastModified（）：获取最后修改时间
+|-String getPath（）：获取构造路径
+|-String getAbsolutePath（）：获取绝对路径
+|-File getAbsoluteFile（）：获取绝对路径对应的File对象
+|-String getCanonicalPath（）：获取规范路径
+|-File getCanonicalFile（）：获取规范路径对应的File对象
+|-boolean exists（）：是否存在
+|-boolean isFile（）：是否时文件，只有这个文件存在并且确实是一个文件，才会返回true
+|-boolean isDirectory（）：是否是目录，只有这个目录确实存在才会返回true
+|-boolean isHidden（）：是否隐藏
+|-boolean canRead（）：是否可读
+|-boolean canWrite（）：是否可写
+|-createNewFile（）：创建文件
+|-mkdir（）：创建目录，如果父目录不存在，创建失败
+|-mkdirs（）：创建目录，如果父目录不存在，一并创建
+|-delete（）：删除文件，如果是目录，只能删除空目录
+|-renameTo（新File）：重命名
+|-String getParent（）：获取父目录
+|-File getParentFile（）：获取父目录对象
+|-String[] list（）：获取下一级
+|-File[] listFiles（）：获取下一级的File对象
+|-File[] listFiles(FileFilter f)：根据过滤器筛选下一级
+|-String[] listFiles（FileFilter f）：根据过滤器筛选下一级
+|-File createTempFile（前缀，后缀）：在操作系统用户的临时目录下创建临时文件
+|-File createTempFile（前缀，后缀，临时文件目录）：指定目录下创建临时文件
+|-void deleteOnExit（）：退出JVM是删除，一般用于删除临时文件。
+#IO流分类
+①、按照方向分：输入流和输出流
+|-输入流：InputStream和Reader系列
+|-输出流：OutputStream和Writer系列
+②、按照处理数据的方式不同：字节流和字符流
+|-字节流：InputStream和OutputStream系类
+|-字符流：Reader和Writer系列
+③、按照角色功能不同：节点流和处理流
+|-字节流：文件IO流
+|-处理流：缓冲流、转换流、数据流、对象流、打印流
+#IO流的四个抽象基类
+1、InputStream：字节输入流
+|-int read（）：读取一个字节，如果已经到达流末尾，没有数据刻度了，返回-1。
+|-int read（byte[] data）：读取多个字节到data数组中，从data[0]开始存储，最多读取data.length个字节。返回的是实际读取的字节数。如果已经到达流末尾，没有数据刻度了，返回-1。
+|-int read（byte[] data，int offset，int len）：读取多个自接到data数组中，从data[offset]开始存储，最多读取len个字节。返回的是实际读取的字节数。如果已经给到达流末尾，没有数据可读了，返回-1。
+|-void close（）：关闭IO流。
+2、OutputStream：字节输出流
+|-void write（int）：输出一个字节
+|-void write（byte[] data）：输出一个字节数组的全部
+|-void write（byte[] data,int offset,int len）：输出一个字节数组的部分
+|-void flush（）：刷新
+|-void close（）：关闭
+3、Reader：字符输入流
+|-int read（）：读取一个字符，如果已经到达流末尾，没有数据刻度了，返回-1
+|-int read（char[] data）：堆区多个字符到data数组中，从data[0]开始存储，最多读取data.length个字符。返回的是实际读取的字符数。如果已经给到达流末尾，没有数据可读了，返回-1
+|-int read（char[] data,int offset,int len）：读取多个字符到data数组中，冲data[offset]开始存储，最多读取len个字符。返回的是实际读取的字符数。如果已经到达流末尾，没有数据可读，返回-1
+|-void close（）：关闭IO流
+4、Writer：字符输出流
+|-void write（int b）：输出一个字符
+|-void write（char[] data）：输出一个字符数组的全部
+|-void write（char[] data,int offset,int len）：输出一个字符数组的部分
+|-void flush（）：刷新
+|-void close（）：关闭
+|-void write（String str）：输出整个字符串
+|-void write（String str，int offset,int count）：输出字符串的部分
+#分类
+1、文件IO流
+①、FileInputStream：文件字节输入流，可以用于读取任意类型的文件
+②、FileOutputStream：文件字节输出流，可以用于输出数据到任意类型的文件
+③、FileReader：文件字符输入流，只能用于读取纯文本文件，并且只能按照平台默认的字符编码进行文件读取。所以如果文件的编码与程序的编码不一致，会出现乱码。
+④、FileWriter：文件字符输出流，只能把数据输出到纯文本文件中，并且只能按照平台默认的字符编码进行输出。所以如果文件的编码与程序的编码不一致，会出现乱码。
+2、缓冲流：
+BufferedInputStream
+BufferedOutputStream
+BufferedReader
+BufferedWriter
+3、转换流
+InputStreamReader：用于解码的IO流，用来包装字节流，把字节输入流包装为字节输入流；数据：冲字节流中官渡区数据，按照指定的编码方式，解码为字符数据
+OutputStreamWriter：用于编码的IO流，用来包装字节流，把字节输出流包装为字符输出流。数据：先写入到OutputStreamWriter中，他在字符数据按照指定的编码，转为字节写出到它包装的字节输出六种，然后输出。
+4、数据流：
+DataOutputStream
+DataInputStream
+5、对象流：
+ObjectOutputStream：序列化
+writeObject（obj）：输出对象
+ObjectInputStream：序列化
+Object readObject（）：读取对象
+【注意】
+|-序列化问题：
+①、所有需要序列化的对象的类型必须实现java.io.Serializable接口，如果这个对象的属性也是引用数据类型，那么只要这个属性也参与序列化，也要实现Serializable接口
+②、如果希望类做了修改之后，原来的序列化的数据仍然可以被反序列化，可以在一开始给类增加一个序列化版本ID：long serialVersionUID常量值
+③、static、transient修饰的属性是不能序列化的
+|-java.io.Externalizable接口
+实现这个接口，也可以使得对象能够被序列化，但是要求程序员重写两个方法
+void writeExternal(ObjectOutput out):编写哪些属性需要序列化
+void reaeExternal(ObjectInput in):编写哪些属性需要反序列化

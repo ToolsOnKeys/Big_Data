@@ -1,0 +1,25 @@
+#Spring
+
+1、创建一个Maven project
+
+2、配置pom.xml
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.0.0.RELEASE</version>
+		</dependency>
+	</dependencies>
+
+3、创建Spring Bean 的xml文件
+在此文件中添加全扫描（指定那个文件夹）：
+<context:component-scan base-package="com.atding"></context:component-scan>
+
+4、在3中指定的文件夹下建立包和类：
+同时记住四个注解：
+@Component
+@Repository
+@Service
+@Controller
+同时记住一个自动装配的注解：
+@Autowired

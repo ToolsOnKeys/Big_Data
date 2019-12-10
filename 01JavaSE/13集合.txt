@@ -1,0 +1,181 @@
+#数据结构
+1、逻辑结构：
+|-同属于一个集合的松散的结构：元素之间没有关系
+|-线性结构
+|-树型结构
+|-图形结构
+2、物理结构：数组的顺序结构、链式结构、索引结构、哈希结构
+3、在Java的核心类库中，提供了很多已经实现好的数据结构，主要分为Collection系类和Map系列
+#Collection接口
+1、存储一组对象
+2、是Collection系列的根接口。它没有直接的实现类，他是通过更具体的子接口的实现类来完成数据结构的设计。
+3、Collection几口的API：
+①、添加：
+|-add（E e）：添加一个对象
+|-add（Collection c）：添加多个对象
+②、删除：
+|-remove（Object obj）
+|-removeAll（Collection c）
+|-clear（）：清空集合
+③、查询：
+|-contains（Object obj）
+|-containsAll（Collection c）：是否包含多个对象
+|-isEmpty（）：是否为空集合
+④、其他方法：
+|-size（）：有效元素的长度
+|-retainAll（Collection c）：取交集
+⑤、遍历相关
+|-toArray（）
+|-iterator（）
+#Iterable和Iterator接口
+1、java.lang.Iterable：实现这个接口，才能称为foreach遍历的目标。它包含Iterator iterator（）
+2、java.util.Iterator：迭代器的统一接口，它包含三个抽象方法：
+|-boolean hasNext（）
+|-E next（）
+|-void remove（）
+3、Collection接口的remove（）和Iterator接口的remove（）的区别
+|-Collection接口的remove（）用于直接删除目标；Iterator接口的remove（）可以用于根据元素是否满足某个条件才删除。
+|-在用Iterator接口遍历过程中，只能使用Iterator接口的remove（）方法，如果你在Iterator接口便利过程中调用了Collection接口的remove（），可能会报ConcurrentModificationException。
+#List接口
+1、List系列集合：有序的，可重复的
+2、List接口在Collection接口的基础上增加了一些API：
+①、添加
+|-add（int index，E e）：添加一个对象
+|-addAll（int index，Collection c）：添加多个对象
+②、删除
+remove（int index）：删除一个对象
+③、查询
+|-get（int index）：获取index位置的元素
+|-indexOf（Object obj）：从前往后找
+|-lastIndexOf（Object obj）：从后往前找
+④、修改
+|-set（int index，Object value）：修改替换
+⑤、其他方法
+|-List subList（int start ，int d）：截取
+⑥、和遍历有关
+|-ListIterator listIterator（）
+|-ListIterator listIterator（int index）
+3、ListIterator：是Iterator的子接口，增加了几个方法
+|-boolean hasPrevious（）：是否前面还有元素
+|-E previous（）：取出前一个
+|-int nextIndex（）：获取下一个元素的下标
+|-int previousIndex（）：获取前一个元素的下标
+|-add（Object obj）：遍历过程中添加
+|-set（Object obj）：遍历过程中替换
+4、List接口的实现类
+①、Vector：底层实现是数组接口，动态数组
+②、ArrayList：动态数组
+③、LinkedList：双向链表
+|-实现了List、Deque、Queue等，
+|-在逻辑结构可以作为：栈、队列、链表等线性结构使用，通过调用一些特殊的方法来实现。
+|-栈
+|-队列
+④、Stack：Vector的子类，在Vector的基础上增加了几个方法，施得可以呈现先进后出的特征（pop，push，peek等）
+5、Vector和ArrayList的区别：
+①、Vector是线程安全，他的操作方法有sunchronized修饰；ArrayList是线程不安全的
+②、Vector是扩容2倍，也可以根据指定的增量扩容；ArrayList的扩容1.5倍
+③、Vector的初始化时10；ArrayList在JDK1.7之前也是10，在JDK1.8之后，在创建ArrayList时先初始化一个默认的空数组的常量，当第一次添加元素时，初始化为10.
+④、Vector支持旧版的迭代器Enumeration，也支持新版的Iterator和foreach；而ArrayList只支持新版的Iterator和foreach
+#Set接口
+1、元素不可重复
+2、相关实现类
+①、HashSet：无序，内部实现是HashMap
+②、TreeSet：有大小顺序
+|-new TreeSet（）：要求元素实现Comparable接口
+|-new TreeSet（Comparator）：单独指定Comparator的比较器对象，内部实现：TreeMap
+③、LinkedHashSet：有序，按照元素的添加顺序，他是HashSet的子类，内部实现：LinkedHashMap
+3、如何区分元素是不可重复重复
+|-HashSet和LinkedHashSet：依赖与元素的hashCode和equals方法
+|-TreeSet：依赖Comparable接口compareTo方法或Comparator接口的compare（x，x）；
+#Map
+1、Map概述：又来存储键值对，映射关系的集合。所有的Map的key都不能重复，而且所有的key一旦添加到map中就不要修改。
+|-键值对、映射关系的类型：Map.Entry类型：Entry接口是Map接口的内部接口。所有的Map的键值对的类型都是先了这个接口。HashMap中的映射关系，是有一个内部类来实现Entry接口，JDK1.7是一个叫做Entry的内部类实现Entry接口。JDK1.8是一个叫做Node的内部类实现Entry接口，TreeNode又继承了Node类型。TreeMap中的映射关系，是有一个内部类Entry来实现Entry的接口。
+2、相关API：
+|-put（Object key，Object value）：添加一对映射关系
+|-putAll（Map m）：添加多对映射关系
+|-clear（）：清空map
+|-remove（Object key）：根据key删除一对
+|-int size（）：获取有效元素的对数
+|-containsKey（Object key）：是否包含某个key
+|-containsValue（Object value）：是否包含某个value
+|-Object get（Object key）：根据key获取value
+|-遍历相关的几个方法
+①、Collection values（）：获取所有的value进行遍历
+②、Set keySet（）：获取所有key进行遍历
+③、Set entrySet（）：获取所有映射关系进行遍历
+#Map的实现类们的区别
+①、HashMap：哈希表
+|-依据key的hashCode和equals来保证key是否重复
+|-key如果重复，新的value会替换旧的value。
+|-hashCode决定了映射关系在table数组中的存储位置，
+|-底层实现：JDK1.7是数组+链表；JDK1.8是数组+链表/红黑树
+②、TreeMap
+|-依据key的大小来保证key是否重复
+|-key如果重复，新的value会替换旧的value
+|-key的大小依赖于，java.lang.Comparable或java.util.Comparator
+③、LinkedHashMap
+|-依据key的hashCode和equals来保证key是否重复。key如果重复，新的value就会替换旧的value
+|-LinkedHashMap是HashMap的子类，比HashMap多了添加顺序。
+④、Hashtable：哈希表
+|-Hashtable是线程安全的，不允许key和value是null
+|-HashMap实现线程不安全的，允许key和value是null
+⑤、HashMap线程不安全，怎么办？
+|-自己使用枷锁等方式
+|-使用Collections工具类中的synchronizedMap（）将不安全的map转一下
+|-使用ConcurrentHashMap
+|-Hashtable
+#Collections工具类
+1、boolean addAll（collection,T....）
+2、binarySearch（List，T）
+3、boolean disjoint（Collection，collection）：判断C1和C2是否没有交际，无返回true
+4、max（Collection）：求某个集合中的最大值
+5、sort（List）：排序
+6、unmodifiableList（List）：返回一个只读的集合
+#集合焦点问题
+#HashMap的底层是实现：
+JDK1.7：数组+链表
+JDK1.8：数组+链表/红黑树
+#HashMap的数组的元素类型
+java.util.Map$Entry接口类型
+JDK1.7的hashMap中有内部类Entry实现Entry接口
+JDK1.8的hashmap中有内部类Node和TreeNode类型实现Entry接口
+#为什么要是用数组
+数组的访问效率高
+#为什么数组还需要用链表
+为了解决hash和[index]冲突问题
+#HashMap的数组的初始化长度
+16
+#HashMap的映射关系的存储索引index如何计算
+hash&table.length-1
+#为什么要使用hashCode（）
+空间转时间
+#hash（）函数的作用
+在计算index之前，会对key的hashCode值，做一个hash（key）再次哈希运算，这样可以使得Entry对象更加散列的存储到table中
+#HashMap的数组长度为什么是2的幂次方
+因为2的n次方-1的二进制值的前面都是0，后面几位都是1，这样的化，与hash进行&运算的结果就能保证在[0，table。length-1]范围内，而且是均匀的。
+#HashMap为什么使用&运算
+效率高
+#HashMap的数组声明时候扩容
+1、JDK1.7：当要添加新的Entry对象时方向size达到threshold且table[index]！=null时扩容
+2、JDK1.8：当增加新的Entry对象时发现size达到threshold且table[index]下的节点个数达到8个，但是table.length又没有达到64。
+#如何计算扩容的阈值
+threshold=capacity*loadfactor
+#loadFactor为什么是0.75
+过大会导致某个index位置下面的节点个数过多
+过小会导致扩容频率太高
+#JDK1.8的hashMap什么时候树化
+当table[index]下的节点个数达到8个，但是table.length已经达到64
+#JDK1.8的HashMap为什么要反树化
+因为当table[index]下的树的几点个数少于6个后，使用红黑树反而复杂，此时使用链表即间接又效率不错
+#为什么hashcode方法要使用31
+因为31是个不大不小的素数
+#已经存储到HashMap中的key的对象过属性是否可以修改，为什么？
+不可修改
+#key值为什么一般是String和Integer
+因为他们不可变
+#HashMap中的Node的hash变量与key变量为什么要加final声明
+因为不希望我们修改hash和key
+#为什么HashMap中的Node或Entry类型要单独存储hash
+为了添加、删除、查找过程中，比较hash效率更高，不用每次重新计算key的hash
+#如果key是null是如何存储的
+会存在table[0]中

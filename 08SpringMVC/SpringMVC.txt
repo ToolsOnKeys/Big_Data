@@ -1,0 +1,128 @@
+#SpringMVC
+1、创建一个Maven Web的工程
+
+2、配置pom.xml
+  <dependency>
+  	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-webmvc</artifactId>
+	  <version>4.0.0.RELEASE</version>
+</dependency>
+
+3、在web.xml中配置前端控制器DispatcherServlet
+快捷键：Alt+/
+	<servlet>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc.xml</param-value>    指定SpringBean的xml配置
+		</init-param>
+		
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<url-pattern>/</url-pattern>    url调整为/
+	</servlet-mapping>
+
+4、创建springmvc的核心配置文件（即3中classpath后面指定的xml文件）
+<!-- 组件扫描，主要扫描事件相应的文件 -->
+<context:component-scan base-package="基本包 "></context:component-scan>
+	
+<!-- 视图解析器 相应的视图文件jsp或html都在WEB-INF/views下-->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/views/"></property>
+	<property name="suffix" value=".jsp"></property>
+</bean>
+
+5、添加事件控制器，此通知其要在4中指定的基本包内，同时此控制类要用注释@Controller标记类
+@Controller
+public class SpringmvcHandle {
+
+}
+
+6、编写请求处理方法，处理客户端的请求，这个方法需要使用注释@RequestMapping
+同时后面value可以指定响应的标记
+@RequestMapping(value="/hello")
+	public String  handleHello() {
+		System.out.println("Hello Springmvc .");
+		return "success";
+	}
+
+	请求参数&响应数据
+1)	@RequestParam 处理请求参数
+
+2)	ModelAndView  Map  Model  处理响应数据
+
+		/**
+	 * REST
+	 * 
+	 * 客户端的请求: http://localhost:8888/SpringmvcDemo/testRest/tom/22
+	 * 
+	 * 占位符: {占位符的名字}
+	 * 
+	 * @PathVariable
+	 */
+	@RequestMapping(value="/testRest/{name}/{age}")
+	public String testRest(@PathVariable(value ="name")String name, 
+				@PathVariable(value ="age") Integer age ) {
+		System.out.println(name + " , " + age);
+		
+		return "success";
+	}
+	
+	/**
+	 * 测试请求参数 以及响应数据
+	 * 
+	 * 请求参数: username=Tom&age=22
+	 * 		   可以通过@RequestParam注解来指定将哪个参数赋值给哪个形参.
+	 */
+	@RequestMapping(value="/testParam")
+	public /*String*/ ModelAndView  testParam( @RequestParam(value="username")String username, 
+					@RequestParam("age")Integer password 
+					/*Map<String,Object> map */ 
+					/*Model model*/ ) {
+		
+		System.out.println(username + " , " + password );
+		
+		//绑定数据到Request中
+		//map.put("loginUser", "Admin");
+		//model.addAttribute("loginUser", "Root");
+		
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("loginUser", "小柴柴");
+		
+		mav.setViewName("success");
+		
+		return mav ;
+		//return "success";
+	}
+	
+	/**
+	 * 测试重定向
+	 */
+	@RequestMapping(value="/testRedirect")
+	public String  testRedirect() {
+		System.out.println("重定向");
+		
+		return  "redirect:/ok.jsp";
+	}
+	
+	
+	
+	/**
+	 * 客户端的请求: http://localhost:8888/SpringmvcDemo/hello
+	 * 
+	 * 请求处理方法
+	 * 
+	 * @RequestMapping: 用于请求映射
+	 */
+	@RequestMapping(value="/hello")
+	public String  handleHello() {
+		System.out.println("Hello Springmvc !!!!!");
+		
+		return "success";
+	}

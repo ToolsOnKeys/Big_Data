@@ -1,0 +1,118 @@
+JUC
+	
+#多线程的使用优势：
+1、提高应用程序的响应。对图形化界面更有意义，可增强用户体验
+2、提高计算机系统CPU的利用率
+3、改善程序结构
+4、可以将耗时的任务放到后台去处理。
+	
+#多线程的创建方式
+1、继承Thread
+2、实现Runnable接口
+3、使用匿名内部类创建线程
+4、使用Callable接口
+new Thread(new FutureTask<>(new Callable<V>() {
+			@Override
+			public V call() throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		})).start();
+5、使用线程池
+经常创建和销毁、使用量特别大的资源，比如并发情况下的线程，对性能影响很大。因此体检创建多个线程，放入线程池，使用时直接获取，使用完返回池中。可以避免频繁创建销毁、实现重复利用。
+①、优势：提高响应速度（减少了创建新线程的时间）；降低资源消耗（重复利用线程池中线程，不需要每次都创建）；便于线程管理。
+②、相关属性：
+|-corePoolSize：核心池的大小
+|-maximumPoolSize：最大线程数
+|-keepAliveTime：线程没有任务时最多保持多长时间后会终止
+③、ExecutorService：真正的线程池接口
+|-常见子类ThreadPoolExecutor
+|-void execute（Runnable command）：执行任务/命令，一般用来执行Runnable
+|-<T>Future<T>submit(Callable<T>task)：执行任务，有返回值，一般又来执行Callable
+|-void shutdown（）：关闭链接池
+④、Executors：工具类、线程池的工厂类，用于创建并返回不同类型的线程池
+Executors.newCachedThreadPool()：创建一个可根据需要创建新线程的线程池
+Executors.newFixedThreadPool()：创建一个可重用固定线程数的线程池
+Executors.newSingleThreadExector()：创建一个只有一个线程的线程池
+Executors.newScheduledThreadPool(n)：创建一个线程池，它可安排在给定延迟后运行命令或者定期的执行。
+ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.submit(new Runnable() {
+			@Override
+			public void run() {
+				for(int i=0;i<10;i++) {
+				}
+			}
+		});
+	
+#同步锁的作用域
+不同线程访问同一个对象过的不同同步方法，那么使用的锁都已这个对象，因此这个对象的所有同步方法共同使用一把锁；
+不同线程访问同一个类的多个静态同步方法，那么使用的锁都是这个对象的类对象，因此这个对象的所有静态同步方法共同使用一把锁
+同步方法和普通方法互不干扰。
+	
+#使用Lock解决线程安全问题
+JDK1.5开始，Java提供了更强大的线程同步机制——通过显示定义同步锁对象来实现同步。同步锁使用Lock对象充当。java.util.concurrent.locks.Lock接口时控制多个线程对共享资源进行访问的工具。锁提供了对共享资源的独占访问，每次只能由一个线程对Lock对象加锁，线程开始访问共享资源之前应先获得Lock对象；
+
+#使用Lock后线程通信
+|-Condtion 的功能类似于在传统的线程技术的。Object.wait()和Object.notify()的功能
+|-Condition.await()类似于wait
+|-Conditon.signal()类似于notify
+
+class Share {
+	private ReentrantLock lock = new ReentrantLock();
+	private Condition condition = lock.newCondition();
+	public static Integer num = 0;
+	// 拿
+	public void take() {
+		lock.lock();
+		try {
+			while(num<=0) {
+				condition.await();
+			}
+			num--;
+			condition.signalAll();
+		} catch (Exception e) {
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	// 做
+	public void make() {
+		lock.lock();
+		try {
+			while(num>=10) {
+				condition.await();
+			}
+			num++;
+			condition.signalAll();
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			lock.unlock();
+		}
+	}
+}
+	
+#锁的总结：
+1、特质上分：共享锁和排他锁
+|-共享锁：一般是读操作
+|-排他锁：互斥锁，一般写操作
+2、用途上分：读锁和写锁
+3、数据库：表锁和行锁
+4、世界观划分：悲观锁（真锁）和乐观锁（假锁）
+5、是否明显：显式锁和隐式锁
+	
+#JUC工具类
+1、ReentrantReadWriteLock：读写锁，表示两个锁，一个时读操作相关的锁，称为共享锁；一个时写相关的锁，称为排他锁。
+|-定义ReadWriteLock锁对象：ReadWriteLock rwlock = new ReentrantReadWriteLock（）
+|-读锁使用：rwlock.readLock().lock()         => rwlock.readLock().unlock()
+|-写锁使用：rwlock.writeLock().lock()        => rwlock.writeLock().unlock()
+2、CountDownLatch：主要有两个方法，当一个或多个线程调用await方法是，这些线程就会阻塞。其他线程调用countDown方法会将计数器减1（调用countDown方法的线程不会阻塞），当计数器的值变为0时，因await方法阻塞的线程会被唤醒，继续执行。
+|-定义个CountDownLatch对象：CountDownLatch cdl = new CountDownLatch（6）；
+|-一个线程标记减1：cdl.countDown()
+|-在后续代码之前阻塞cdl：cdl.await（）
+3、CyclicBarrier：循环栅栏。他要做的事情是，让一组线程到达一个屏障时被阻塞，知道最后一个线程到达屏障，屏障才会开门，所有被屏障拦截的线程才会继续干活。线程进入屏障通过CyclicBarrier的await（）方法。
+4、Semaphore：在信号量上定义两种操作
+|-acquire（获取）当一个线程调用acquire操作时，它要么通过成功获取信号量（信号量-1），要么一直等下去，直到有线程释放信号量，或超时；
+|-release（释放）实际上会将信号量的值+1，然后唤醒等待的线程。
+|-信号量主要用于两个目的，一个时用于多个共享资源的互斥使用，另一个用于并发线程数的控制。
