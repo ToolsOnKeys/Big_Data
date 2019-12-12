@@ -190,4 +190,15 @@ eg: put 'dh','001','info:name','dinghao'
 
 ### ⑤、StoreFile Compaction
 
-* 由于memstore每次刷写都会生成一个新的HFile，且同一个字段的不同版本和不同类型有可能会分布在不同的HFile中，因此查询时需要遍历所有的HFile。为了减少HFile的个数，以及清理掉过期和删除的数据
+* 由于memstore每次刷写都会生成一个新的HFile，且同一个字段的不同版本和不同类型有可能会分布在不同的HFile中，因此查询时需要遍历所有的HFile。为了减少HFile的个数，以及清理掉过期和删除的数据，会进行StoreFile Compaction。
+* Compaction分为两种，分别是Minor Compaction和Major Compaction。Minor Compaction会将临近的若干个较小的HFile合并成一个较大的HFile，但不会清理过期和删除的数据。Major Compaction会将一个Store下的所有的HFile合并成一个大的HFile，并且会清理掉过期和删除数据。
+
+### ⑥、Region Split
+
+* 默认情况下，每个Table起初只要有一个Region，随着数据的不断写入，Region会自动进行拆分。刚拆分时，两个子Region都位于当前的Region Server，但出于负载均衡的考虑，HMaster有可能会将给某个Region转移给其他的Region Server。
+* Region Split时机：
+  * 1.当1个region中的某个Store下所有StoreFile的总大小超过hbase.hregion.max.filesize，该Region就会进行拆分（0.94版本之前）。
+  * 2.当1个region中的某个Store下所有StoreFile的总大小超过Min(R^2 * "hbase.hregion.memstore.flush.size",hbase.hregion.max.filesize")，该Region就会进行拆分，其中R为当前Region Server中属于该Table的个数（0.94版本之后）。
+
+## 5、HBase API代码案例
+
