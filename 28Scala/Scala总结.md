@@ -115,7 +115,7 @@ class Cla(pa1:String,pa2:Int){
 
 ### ②、包
 
-```
+```scala
 //多层级包
 package com{
 ....
@@ -324,5 +324,489 @@ set11.remove(4)
 for(x<-set11){...}
 ```
 
+## 5、集合核心应用
 
+### ①、映射map
+
+```scala
+def map[B](f:(A)=>B):HashSet[B]//即对一个集合中的每一个元素遍历，然后每个元素经过f函数的处理，记过返回一个新的集合
+//eg：元素全部大写化
+List("Alice", "Bob", "Nick").map(_.toUpperCase)//List(ALICE, BOB, NICK)
+```
+
+### ②、过滤filter
+
+```scala
+List("Alice", "Bob", "Nick").filter(_.startsWith("A"))//List(Alice)
+```
+
+### ③、化简reduce
+
+```scala
+def reduce(f:(A)=>B)//默认reduceleft，同时有对应的reduceright；对于reduce，即从集合左边开始两两经过f函数处理，将返回值作为一个值，同往右的另一个值开始传入f函数进行处理。
+//eg：求一个list集合的所有元素的积
+List(1, 2, 3, 4, 5).reduce(_*_)//120
+```
+
+### ④、折叠fold
+
+```scala
+List(1, 2, 3, 4, 5).reduce(_+_)//底层调用fold
+//等价于=》
+List(2,3,4,5).fold(1)(_+_)//15
+```
+
+### ⑤、扫描scan
+
+```scala
+(1 to 5).scan(0)(_+_)   //Vector(0, 1, 3, 6, 10, 15)
+```
+
+### ⑥、拉链zip
+
+```scala
+(1 to 5).zip(6 to 10)//Vector((1,6), (2,7), (3,8), (4,9), (5,10))
+```
+
+### ⑦、迭代器iterator
+
+```scala
+//遍历方式一,一次遍历后，需要重新赋值迭代器
+val iterator=List(1,2,3,4).iterator
+while(iterator.hasNext){... iterator.next() ...}
+//遍历方式二，通过变量指向迭代器，通过改变变量的指向迭代器的位置可以实现多次遍历
+val iterator1 = List(1,2,3,4).iterator
+for(enum <- iterator1){... enum ...}
+```
+
+### ⑧、流Stream
+
+```scala
+def numsForm(n:BigInt):Stream[BigInt]=n #:: numsForm(n+1)
+val stream1 = numsForm(1)//取出第一个元素
+stream1.head//取出当前流的头元素
+stream1.tail//生成下一个元素
+```
+
+### ⑨、视图View（？？？？）
+
+```scala
+//懒加载的集合
+println((1 to 100).view.filter((a: Int) => a.toString.reverse == a.toString))//SeqViewF(...)
+```
+
+### ⑩、其他
+
+#### 1、线程安全的集合
+
+```scala
+SynchronizedBuffer
+SynchronizedMap
+SynchronizedPriorityQueue
+SynchronizedQueue
+SynchronizedSet
+SynchronizedStack
+```
+
+#### 2、并行集合parallel
+
+```scala
+(1 to 20).par.foreach(println _)//关键.par
+```
+
+## 6、隐式转换 implicit
+
+```scala
+def main(args: Array[String]): Unit = {
+      implicit def f1(d: Double): Int = {
+        d.toInt
+      }
+      implicit def f2(l: Long): Int = {
+        l.toInt
+      }
+      val num: Int = 3.5
+      println(num)
+      val num2: Int = 4.5
+      println(num2)
+      val num3: Int = 20l
+ } 
+```
+
+### ①、丰富类库
+
+```scala
+class MySQL{
+  def insert(): Unit = {
+    println("insert")
+  }
+}
+class DB {
+  def delete(): Unit = {
+    println("delete")
+  }
+}
+//隐式转换方法
+implicit def addDelete(mysql:MySQL): DB = {
+      new DB //
+}
+val mysql = new MySQL
+mysql.insert()
+mysql.delete() 
+```
+
+### ②、隐式值
+
+```scala
+implicit val str1: String = "jack"//定义隐式参数
+def hello(implicit name: String): Unit = {//方法传参是一个隐式值
+println(name + " hello")
+}
+hello//jack
+```
+
+### ③、隐式类
+
+```scala
+class MySQL1 { //普通类
+  def sayOk(): Unit = {
+    println("sayOk")
+  }
+}
+
+def main(args: Array[String]): Unit = {
+    //DB1会对应生成隐式类
+    //构造器，可以接受 MySQL1 实例
+    implicit class DB1(val m: MySQL1) {
+      def addSuffix(): String = { //方法
+        m + " scala"
+      }
+    }
+    val mysql1 = new MySQL1 //创建一个 MySQL1
+    mysql1.sayOk()
+    println(mysql1.addSuffix()) /
+  }
+```
+
+## 7、模式匹配
+
+### ①、match
+
+```scala
+pre match {
+case '+' => res = n1 + n2
+case '-' => res = n1 - n2
+case '*' => res = n1 * n2
+case '/' => res = n1 / n2
+case _ => println("oper error")
+}
+```
+
+### ②、守卫
+
+```scala
+// 这里可以增加一个if 的判断，这样就可以对某个范围数据进行匹配了.
+//  匹配到一个 _ 就不会再匹配的，这个原则和普通的case 是一样的
+//  模式匹配 守卫功能
+//   这里的 _ 表示 忽略 ch
+case _ if ch.toString.equals("3") => digit = 3
+// 这里的 _ 表示 默认匹配
+case _ => sign = 2
+```
+
+### ③、类型匹配
+
+```scala
+obj match {
+case a : Int => a
+case b : Map[String, Int] => "对象是一个字符串-数字的Map集合"
+case c : Map[Int, String] => "对象是一个数字-字符串的Map集合"//同b
+case d : Array[String] => "对象是一个字符串数组"
+case e : Array[Int] => "对象是一个数字数组"
+case f : BigInt => Int.MaxValue
+case _ => "啥也不是"
+```
+
+### ④、数组匹配
+
+```scala
+arr match {
+case Array(0) => "0"
+case Array(x, y) => x + "=" + y
+case Array(0, _*) => "以0开头和数组"
+case _ => "什么集合都不是"
+```
+
+### ⑤、列表匹配
+
+```scala
+list match {
+case 0 :: Nil => "0" // 匹配？ LIst(0)   【List(0)】
+case x :: y :: Nil => x + " " + y //  匹配? 【有两个元素的List】t
+case 0 :: tail => "0 ..." // 匹配? 【以0 开头的后面有任意多个 元素的List 】
+case _ => "something else"
+}
+```
+
+### ⑥、元组匹配
+
+```scala
+pair match { // 
+case (0, _) => "0 ..." // 匹配? 【以0 开头的 对偶元组】
+case (y, 0) => y // 匹配? 【以0 结尾的 对偶元组】
+case(x, y) => (y,x)
+case _ => "other" // 其它
+}
+```
+
+### ⑦、对象匹配
+
+```scala
+object Square {
+def unapply(z: Double): Option[Double] = Some(math.sqrt(z)) //对象提取器
+def apply(z: Double): Double = z * z
+}
+// 模式匹配使用：
+val number: Double = 36.0
+number match {
+case Square(n) => println(n)//6
+case _ => println("nothing matched")
+}
+```
+
+### ⑧、变量声明中的模式
+
+```scala
+val (x, y) = (1, 2)
+val (q, r) = BigInt(10) /% 3  // q = BigInt(10) / 3 r = BigInt(10) % 3 
+val arr = Array(1, 7, 2, 9)
+val Array(first, second, _*) = arr //模式匹配
+println(first, second) // 1, 7
+```
+
+### ⑨、样例类
+
+```scala
+abstract class Amount
+case class Dollar(value: Double) extends Amount 
+case class Currency(value: Double, unit: String) extends Amount
+case object NoAmount extends Amount 
+//说明: 这里的 Dollar，Currencry, NoAmount  是样例类。
+```
+
+### ⑩、密封类 type
+
+```scala
+type S=String
+var v:S="abc"
+def test():S="xyz"
+```
+
+## 8、函数式编程高级
+
+### ①、偏函数
+
+```scala
+val list = List(1, 2, 3, 4, "abc")
+val list3 = list.collect(addOne3)
+println("list3=" + list3) 
+//偏函数
+val addOne3= new PartialFunction[Any, Int] {
+def isDefinedAt(any: Any) = if (any.isInstanceOf[Int]) true else false
+def apply(any: Any) = any.asInstanceOf[Int] + 1
+}
+//=》化简一：
+def f2:PartialFunction[Any,Int]={
+    case i:Int=>i+1
+}
+//=>   list3=list.collect(f2)
+//=》化简二：
+list3=list.collect({case i:Int=>i+1})
+```
+
+### ②、匿名函数
+
+```scala
+var f2 = (x:Double)=>3*x
+f2(1)//3
+```
+
+### ③、高阶函数
+
+```scala
+//1
+def test(f: Double => Double, n1: Double) = {
+f(n1) //
+}
+//2
+def minusxy(x: Int) = {
+ (y: Int) => x – y // 匿名函数 
+}
+```
+
+### ④、闭包
+
+```scala
+def makeSuffix(suffix: String) = { //接受字符串
+(name: String) => {  //传入一个文件名[可能有后缀，可能没有]
+if (name.endsWith(suffix)) name // 如果有，返回原文件名
+else name + suffix //如果没有就，拼接该后缀名
+}}
+```
+
+### ⑤、函数柯里化
+
+```scala
+//闭包
+def mulCurry(x: Int) = (y: Int) => x * y
+//=》函数柯里化
+def mulCurry2(x: Int)(y:Int) = x * y
+```
+
+### ⑥、控制抽象
+
+```scala
+def myRunInThread(f1: () => Unit) = {
+      new Thread {
+        override def run(): Unit = {
+          f1()
+        }
+      }.start()
+    }
+//使用方法一：
+    myRunInThread {
+      () => println("干活咯！5秒完成...")
+        Thread.sleep(5000)
+        println("干完咯！")
+    }
+//使用方法二（控制抽象）
+    myRunInThread {
+
+        println("干活咯！5秒完成~...")
+        Thread.sleep(5000)
+        println("干完咯！~")
+
+    }
+```
+
+```scala
+def until(condition: => Boolean)(block: => Unit): Unit = {
+//类似while循环，递归
+if (condition) {
+block
+until(condition)(block)
+}
+```
+
+## 9、泛型
+
+```scala
+// Scala 枚举类型
+object SeasonEm extends Enumeration {
+  type SeasonEm = Value //自定义SeasonEm，是Value类型,这样才能使用
+  val spring, summer, winter, autumn = Value
+}
+// 定义一个泛型类
+class EnglishClass[A, B, C](val classSeason: A, val className: B, val classType: C)
+```
+
+## 10、类型约束
+
+### ①、上界
+
+```scala
+[T <: A]  表示 【表示T 是A的子类型，或者就是A类型,即不超过 A】
+//或用通配符:
+[ _ <: A]
+//传统方法
+class CompareInt(n1: Int, n2: Int) { 
+  def greater = if(n1 > n2) n1 else n2
+}
+//任意类型
+class CompareComm[T <: Comparable[T]](obj1: T, obj2: T) {
+    def greater = if(obj1.compareTo(obj2) > 0) obj1 else obj2
+}
+```
+
+### ②、下界
+
+```scala
+[T >: A] 
+//或用通配符:
+[_ >: A]
+//    1)对于下界，可以传入任意类型
+//    2)传入和Animal直系的，是Animal父类的还是父类处理，是Animal子类的按照Animal处理(编译类型)， 仍然遵守 动态绑定机制
+//    3)和Animal无关的，一律按照Object处理[编译类型], 遵守动态绑定机制
+//    4)也就是下界，可以随便传，只是处理是方式不一样
+//    5)不能使用上界的思路来类推下界的含义
+```
+
+### ③、类型约束-视图界定
+
+```scala
+def method [A <% B](参数): R = ... 等价于:
+def method [A](参数)(implicit viewAB: A => B): R = ... 
+或等价于:
+implicit def conver(a:A): B = ...
+
+//Int , Float  之间可以相互比较, 使用视图界定
+class CompareComm[T <% Comparable[T]](obj1: T, obj2: T) {
+  def greater = if(obj1.compareTo(obj2) > 0) obj1 else obj2
+}
+```
+
+### ④、上下文界定
+
+```scala
+//方式1
+class CompareComm4[T: Ordering](obj1: T, obj2: T)(implicit comparetor: Ordering[T]) {
+    def geatter = if (comparetor.compare(obj1, obj2) > 0) obj1 else obj2
+}
+//方式2,将隐式参数放到方法内
+class CompareComm5[T: Ordering](o1: T, o2: T) {
+    def geatter = {
+        def f1(implicit cmptor: Ordering[T]) = cmptor.compare(o1, o2)
+        if (f1 > 0) o1 else o2
+    }}
+//方式3,使用implicitly语法糖，最简单(推荐使用)
+class CompareComm6[T: Ordering](o1: T, o2: T) {
+  def geatter = {
+    //这句话就是会发生隐式转换，获取到隐式值 personComparetor
+    val comparetor = implicitly[Ordering[T]]
+    if(comparetor.compare(o1, o2) > 0) o1 else o2
+  }}
+```
+
+### ⑤、协变、逆变、不变
+
+```scala
+C[+T]：如果A是B的子类，那么C[A]是C[B]的子类，称为协变 
+C[-T]：如果A是B的子类，那么C[B]是C[A]的子类，称为逆变 
+C[T]：无论A和B是什么关系，C[A]和C[B]没有从属关系。称为不变.
+
+object CovariantDemo {
+  def main(args: Array[String]): Unit = {
+     val t1: Temp3[Super] =  new Temp3[Super]("hello")
+
+    //当我们在定义 Temp3[+A]， 那么 在使用时，就会发生协变
+    // Temp3[Sub] 也是 Temp3[Super] 子类型
+    // val t3: Temp3[Super] =  new Temp3[Sub]("hello")
+
+    //当我们在定义 Temp3[-A]， 那么 在使用时，就会发生逆变
+    // Temp3[Super] 也是 Temp3[Sub] 子类型
+    val t4: Temp3[Sub] =  new Temp3[Super]("hello")
+    
+    //当我们在定义 Temp3[A]， 那么 在使用时，就不会发生逆变，和协变，称为不变
+  }
+}
+
+
+class Temp3[-A](title: String) { //Temp3[+A] //Temp[-A]
+  override def toString: String = {
+    title
+  }
+}
+//支持协变
+class Super // 父类
+class Sub extends Super //Sbu 是 Super子类
+```
 
