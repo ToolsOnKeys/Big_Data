@@ -40,9 +40,19 @@
 ### ①Spark目前支持的部署模式
 
 * Local模式：在本地部署单个Spark服务，调度器默认为FIFO
+
+  <https://github.com/ToolsOnKeys/Big_Data/blob/master/29Spark/01-1Local%E6%A8%A1%E5%BC%8F.md>
+
 * Standalone模式：Spark自带的任务调度模式（国内常用）
+
+  <https://github.com/ToolsOnKeys/Big_Data/blob/master/29Spark/01-2Standalone%E6%A8%A1%E5%BC%8F.md>
+
   * 配置历史服务器
+
 * Yarn模式：Spark使用Hadoop的Yarn组件进行资源与人的调度（国内常用）
+
+  <https://github.com/ToolsOnKeys/Big_Data/blob/master/29Spark/01-3Yarn%E6%A8%A1%E5%BC%8F.md>
+
 * Mesos模式：Spark使用Mesos平台进行资源与任务的调度
 
 ### ②、集群角色
