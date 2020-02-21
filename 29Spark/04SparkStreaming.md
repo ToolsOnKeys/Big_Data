@@ -68,6 +68,50 @@
 ### ①、WordCount案例
 
 ```scala
+class HMyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEMORY_ONLY){
+
+  def receive(): Unit = {
+
+    try {
+      //创建socket流对象
+      val socket = new Socket(host, port)
+      //创建流
+      val reader = new BufferedReader(new InputStreamReader(socket.getInputStream))
+      //读取数据
+      var str = reader.readLine()
+
+      if (str != null && !isStopped()) {
+        //写入spark内存
+        store(str)
+        //读取新的数据
+        str = reader.readLine()
+      }
+      //关闭流
+      reader.close()
+      socket.close()
+      //重启
+      restart("restart")
+    } catch {
+      //出现异常，重启
+      case e:Exception => restart("restart")
+    }
+  }
+
+  //启动时调用的方法
+  override def onStart(): Unit = {
+    //开启新的线程读取数据
+    new Thread(){
+      override def run(): Unit = {
+        receive()
+      }
+    }.start()
+  }
+
+  override def onStop(): Unit = {}
+}
+```
+
+```scala
 object HReceiveWord {
   def main(args: Array[String]): Unit = {
     //创建StreamingContext对象
@@ -96,89 +140,32 @@ object HReceiveWord {
 object RDDStream {
 
   def main(args: Array[String]) {
-
     //1.初始化Spark配置信息
     val conf = new SparkConf().setMaster("local[*]").setAppName("RDDStream")
-
     //2.初始化SparkStreamingContext
     val ssc = new StreamingContext(conf, Seconds(4))
-
     //3.创建RDD队列
     val rddQueue = new mutable.Queue[RDD[Int]]()
-
     //4.创建QueueInputDStream
     val inputStream = ssc.queueStream(rddQueue,oneAtATime = false)
-
     //5.处理队列中的RDD数据
     val mappedStream = inputStream.map((_,1))
     val reducedStream = mappedStream.reduceByKey(_ + _)
-
     //6.打印结果
     reducedStream.print()
-
     //7.启动任务
     ssc.start()
-
 //8.循环创建并向RDD队列中放入RDD
     for (i <- 1 to 5) {
       rddQueue += ssc.sparkContext.makeRDD(1 to 300, 10)
       Thread.sleep(2000)
     }
-
     ssc.awaitTermination()
-
   }
 }
 ```
 
-### ②、自定义数据源
-
-```scala
-class HMyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEMORY_ONLY){
-
-  def receive(): Unit = {
-
-    try {
-      //创建socket流对象
-      val socket = new Socket(host, port)
-
-      //创建流
-      val reader = new BufferedReader(new InputStreamReader(socket.getInputStream))
-
-      //读取数据
-      var str = reader.readLine()
-
-      if (str != null && !isStopped()) {
-        //写入spark内存
-        store(str)
-        //读取新的数据
-        str = reader.readLine()
-      }
-
-      //关闭流
-      reader.close()
-      socket.close()
-      //重启
-      restart("restart")
-    } catch {
-      //出现异常，重启
-      case e:Exception => restart("restart")
-    }
-  }
-
-  //启动时调用的方法
-  override def onStart(): Unit = {
-    //开启新的线程读取数据
-    new Thread(){
-      override def run(): Unit = {
-        receive()
-      }
-    }.start()
-  }
-
-  override def onStop(): Unit = {}
-}
-```
+### ②、ReceiverAPI
 
 ```scala
 object HReceiverAPI {
@@ -342,3 +329,10 @@ object DirectAPI {
 }
 ```
 
+## 4、DStream转换
+
+* DStream上的操作与RDD的类似，分为Transformations（转换）和Output Operations（输出）两种，此外转换操作中还有一些比较特殊的原语，如：updateStateByKey（）、transform（）以及各种Window相关的算子
+
+### ①、无状态转化操作
+
+* 无状态转化操作就是把简单的RDD转化操作应用到每个批次上，也就是转化DStream中的每一个RDD。部分无状态转化操作列再下表中
