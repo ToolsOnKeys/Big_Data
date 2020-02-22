@@ -10,5 +10,4 @@ public class GmallPublisherApplication {
     public static void main(String[] args) {
         SpringApplication.run(GmallPublisherApplication.class, args);
     }
-
 }

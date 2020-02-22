@@ -9,6 +9,7 @@
         <module name="dw-chart" />
         <module name="gmall-logger" />
         <module name="gmall-publisher" />
+        <module name="gmallcanal" />
         <module name="gmallcommon" />
         <module name="gmallmocker" />
         <module name="gmallrealtime" />
@@ -19,6 +20,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="gmall-logger" options="-parameters" />
       <module name="gmall-publisher" options="" />
+      <module name="gmallcanal" options="-parameters" />
       <module name="gmallcommon" options="-parameters" />
       <module name="gmallmocker" options="-parameters" />
       <module name="gmallrealtime" options="-parameters" />
