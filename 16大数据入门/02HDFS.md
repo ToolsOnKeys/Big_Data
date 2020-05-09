@@ -309,7 +309,7 @@
   	@Before // 配置在集群上运行
   	public void testbegin() {
   		try {
-  			fs = FileSystem.get(new URI("hdfs://hadoop101:9000"), configuration, "atguigu");
+  			fs = FileSystem.get(new URI("hdfs://hadoop101:9000"), configuration, "dinghao");
   		} catch (Exception e) {
   			e.getMessage();
   		}
@@ -659,7 +659,7 @@
   > 2、拷贝2NN中current文件夹到NN存储数据（【/opt/module/hadoop-2.7.2/data/tmp/dfs/name】）
 
   ```linux
-  > scp -r atguigu@hadoop103:2NN读current路径/文件 ./name/
+  > scp -r dinghao@hadoop103:2NN读current路径/文件 ./name/
   ```
 
   > 3、重启NN
@@ -693,7 +693,7 @@
   > 3如果2NN和NN不在一个主机节点上，需要将2NN存储数据的目录拷贝到NN存储数据的平级目录上（不包含in_use.lock文件）
 
   ```linux
-  > scp -r atguigu@hadoop103:/opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary ./
+  > scp -r dinghao@hadoop103:/opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary ./
   > rm -rf in_use.lock
   ```
 
@@ -1006,7 +1006,7 @@
 * 采用distcp命令实现两个hadoop集群之间的递归数据的复制
 
   ```linux
-  > bin/hadoop distcp hdfs://hadoop102:9000/user/atguigu/hello.txt hdfs://hadoop103:9000/user/atguigu/hello.txt
+  > bin/hadoop distcp hdfs://hadoop102:9000/user/dinghao/hello.txt hdfs://hadoop103:9000/user/dinghao/hello.txt
   ```
 
 ### ②、小文件存档
